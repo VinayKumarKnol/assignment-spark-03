@@ -42,7 +42,7 @@ case class FootballAnalysis(spark: SparkSession) {
 
     val result = spark.sql(
       "select HomeTeam ," +
-        " (homeWins + awayWins) * 100 / (homeWinsView.totalMatches + awayWinsView.totalMatches) as win_percentage " +
+        " round((homeWins + awayWins) * 100 / (homeWinsView.totalMatches + awayWinsView.totalMatches), 2) as win_percentage " +
         " from homeWinsView join awayWinsView on homeWinsView.HomeTeam = awayWinsView.AwayTeam " +
         " order by win_percentage DESC " +
         " limit 10")
