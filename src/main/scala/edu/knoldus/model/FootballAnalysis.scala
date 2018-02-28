@@ -1,9 +1,13 @@
 package edu.knoldus.model
 
+import org.apache.spark.sql._
 import org.apache.spark.sql.functions._
-import org.apache.spark.sql.{DataFrame, SparkSession}
 
 case class FootballAnalysis(spark: SparkSession) {
+
+  val dFToProcess: Encoder[FootballMatch] = Encoders.kryo[FootballMatch]
+
+  val footballMatchEncoder: Encoder[FootballMatch] = Encoders.product[FootballMatch]
 
   def getDataFrameOf(url: String): DataFrame = {
     spark.read
@@ -47,5 +51,25 @@ case class FootballAnalysis(spark: SparkSession) {
         " order by win_percentage DESC " +
         " limit 10")
     result
+  }
+
+  def getDatasetFrom(footballDataFrame: DataFrame): Dataset[FootballMatch] = {
+    import spark.implicits._
+    footballDataFrame
+      .map {
+        row => {
+          FootballMatch(
+            row.getAs[String]("HomeTeam"),
+            row.getAs[String]("AwayTeam"),
+            row.getAs[String]("FTHG").toInt,
+            row.getAs[String]("FTAG").toInt,
+            row.getAs[String]("FTR")
+          )
+        }
+      }
+  }
+
+  def topTenTeam(footballDataset: Dataset[FootballMatch]) = {
+    footballDataset.
   }
 }

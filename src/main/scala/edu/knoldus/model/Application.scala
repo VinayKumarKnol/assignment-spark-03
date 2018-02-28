@@ -16,7 +16,8 @@ object Application extends App {
 
   val analyzer = FootballAnalysis(spark)
   val footballData = analyzer.getDataFrameOf(FILE_LOCATION)
-//  analyzer.countMatchesByEachTeam(footballData).show(17)
-  analyzer.mostWinPercentage(footballData).show()
+  //  analyzer.countMatchesByEachTeam(footballData).show(17)
+  //  analyzer.mostWinPercentage(footballData).show()
+  analyzer.getDatasetFrom(footballData).show
 
 }
