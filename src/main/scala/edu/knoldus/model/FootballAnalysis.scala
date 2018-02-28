@@ -69,7 +69,34 @@ case class FootballAnalysis(spark: SparkSession) {
       }
   }
 
-  def topTenTeam(footballDataset: Dataset[FootballMatch]) = {
-    footballDataset.
+  def topTenTeam(footballDataset: Dataset[FootballMatch]): DataFrame = {
+    footballDataset
+      .select("homeTeam", "awayTeam", "result")
+      .createOrReplaceTempView("matches")
+
+    val homeWins = spark.sql(
+      "select homeTeam, sum(case when result = 'H' then 1 else 0 end) as homeWins" +
+        ", count(*)  as totalMatches" +
+        " from matches " +
+        " group by HomeTeam"
+    )
+
+    val awayWins = spark.sql(
+      "select awayTeam, sum(case when result = 'A' then 1 else 0 end) as awayWins " +
+        ", count(*) as totalMatches " +
+        " from matches " +
+        " group by AwayTeam "
+    )
+
+    homeWins.createOrReplaceTempView("homeWinsView")
+    awayWins.createOrReplaceTempView("awayWinsView")
+
+    val result = spark.sql(
+      "select homeTeam ," +
+        " round((homeWins + awayWins) * 100 / (homeWinsView.totalMatches + awayWinsView.totalMatches), 2) as win_percentage " +
+        " from homeWinsView join awayWinsView on homeWinsView.HomeTeam = awayWinsView.AwayTeam " +
+        " order by win_percentage DESC " +
+        " limit 10")
+    result.select("homeTeam")
   }
 }

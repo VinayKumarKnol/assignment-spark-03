@@ -1,9 +1,12 @@
 package edu.knoldus.model
 
+import org.apache.log4j.{Level, Logger}
 import org.apache.spark.SparkConf
 import org.apache.spark.sql.SparkSession
 
 object Application extends App {
+
+  Logger.getLogger("org").setLevel(Level.OFF)
 
   val sparkConf = new SparkConf()
     .setMaster("local")
@@ -18,6 +21,7 @@ object Application extends App {
   val footballData = analyzer.getDataFrameOf(FILE_LOCATION)
   //  analyzer.countMatchesByEachTeam(footballData).show(17)
   //  analyzer.mostWinPercentage(footballData).show()
-  analyzer.getDatasetFrom(footballData).show
+  val footballDataset = analyzer.getDatasetFrom(footballData)
+  analyzer.topTenTeam(footballDataset).show
 
 }
